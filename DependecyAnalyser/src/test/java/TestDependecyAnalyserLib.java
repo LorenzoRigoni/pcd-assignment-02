@@ -1,12 +1,28 @@
-package test.java;
+import lib.DependecyAnalyserLib;
+import org.junit.jupiter.api.*;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestDependecyAnalyserLib {
+    private DependecyAnalyserLib dependecyAnalyserLib;
+
+    @BeforeEach
+    public void beforeEach() {
+        this.dependecyAnalyserLib = new DependecyAnalyserLib();
+    }
 
     @Test
-    public void test() {
+    public void testClassDependencyAnalyser() {
+        assertTrue(true);
+    }
+
+    @Test
+    public void testPackageDependencyAnalyser() {
+        assertTrue(true);
+    }
+
+    @Test
+    public void testProjectDependencyAnalyser() {
         assertTrue(true);
     }
 }

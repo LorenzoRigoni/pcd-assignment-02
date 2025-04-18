@@ -1,4 +1,4 @@
-package main.java.lib.reports;
+package lib.reports;
 
 public class PackageDepsReport {
 }
