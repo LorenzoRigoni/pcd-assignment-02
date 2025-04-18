@@ -5,20 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f820731e-0602-4b0a-b0b9-37647c86cc31" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/gui/placeholder" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DependecyAnalyser.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gui/placeholder.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/lib/DependecyAnalyserLib.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/DependecyAnalyserLib.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lib/ASTVisitor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lib/DependencyAnalyserLib.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/lib/PrintDependenciesAnalysis.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lib/DependecyAnalyserLib.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/lib/reports/ClassDepsReport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/reports/ClassDepsReport.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/lib/reports/PackageDepsReport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/reports/PackageDepsReport.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/lib/reports/ProjectDepsReport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/reports/ProjectDepsReport.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/TestDependecyAnalyserLib.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/TestDependecyAnalyserLib.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/TestDependecyAnalyserLib.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/TestDependencyAnalyserLib.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +22,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -49,8 +44,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.PrintDependenciesAnalysis.executor": "Run",
     "JUnit.TestDependecyAnalyserLib.executor": "Run",
     "JUnit.TestDependecyAnalyserLib.test.executor": "Run",
+    "JUnit.TestDependencyAnalyserLib.testClassDependencyAnalyser.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
@@ -63,20 +60,33 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="JUnit.TestDependecyAnalyserLib">
-    <configuration name="TestDependecyAnalyserLib" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Application.PrintDependenciesAnalysis">
+    <configuration name="PrintDependenciesAnalysis" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="lib.PrintDependenciesAnalysis" />
+      <module name="DependecyAnalyser" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="lib.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TestDependencyAnalyserLib" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="DependecyAnalyser" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="TestDependecyAnalyserLib" />
+      <option name="MAIN_CLASS_NAME" value="TestDependencyAnalyserLib" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TestDependecyAnalyserLib.testClassDependencyAnalyser" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="TestDependencyAnalyserLib.testClassDependencyAnalyser" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="DependecyAnalyser" />
       <option name="PACKAGE_NAME" value="" />
-      <option name="MAIN_CLASS_NAME" value="TestDependecyAnalyserLib" />
+      <option name="MAIN_CLASS_NAME" value="TestDependencyAnalyserLib" />
       <option name="METHOD_NAME" value="testClassDependencyAnalyser" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
@@ -85,8 +95,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.TestDependecyAnalyserLib" />
-        <item itemvalue="JUnit.TestDependecyAnalyserLib.testClassDependencyAnalyser" />
+        <item itemvalue="Application.PrintDependenciesAnalysis" />
+        <item itemvalue="JUnit.TestDependencyAnalyserLib.testClassDependencyAnalyser" />
+        <item itemvalue="JUnit.TestDependencyAnalyserLib" />
       </list>
     </recent_temporary>
   </component>
@@ -106,7 +117,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1744987159361</updated>
-      <workItem from="1744987160326" duration="692000" />
+      <workItem from="1744987160326" duration="7306000" />
     </task>
     <servers />
   </component>
