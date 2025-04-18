@@ -24,4 +24,13 @@ public class ClassDepsReport {
     public Set<String> getDependencies() {
         return this.dependencies;
     }
+
+    @Override
+    public String toString() {
+        return "[" +
+                "className = '" + this.className + '\'' +
+                ", packageName = '" + this.packageName + '\'' +
+                ", dependencies = " + this.dependencies +
+                ']';
+    }
 }
