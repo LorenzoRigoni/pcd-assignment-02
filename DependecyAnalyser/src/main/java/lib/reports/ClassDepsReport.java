@@ -27,10 +27,10 @@ public class ClassDepsReport {
 
     @Override
     public String toString() {
-        return "[" +
+        return "\n\t[" +
                 "className = '" + this.className + '\'' +
                 ", packageName = '" + this.packageName + '\'' +
                 ", dependencies = " + this.dependencies +
-                ']';
+                "]";
     }
 }

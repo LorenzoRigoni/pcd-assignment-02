@@ -12,8 +12,12 @@ import lib.reports.ClassDepsReport;
 import lib.reports.PackageDepsReport;
 import lib.reports.ProjectDepsReport;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class DependencyAnalyserLib {
 
@@ -40,7 +44,40 @@ public class DependencyAnalyserLib {
     }
 
     public Future<PackageDepsReport> getPackageDependencies(Path packageSrcFolder) {
-        return null;
+        final Promise<PackageDepsReport> packageReportPromise = Promise.promise();
+
+        try (final Stream<Path> files = Files.walk(packageSrcFolder)) {
+            final List<Path> paths = files
+                    .filter(Files::isRegularFile)
+                    .filter(p -> p.toString().endsWith(".java"))
+                    .toList();
+
+            final List<Future<ClassDepsReport>> classesFutures = new ArrayList<>();
+
+            paths.forEach(p -> classesFutures.add(this.getClassDependencies(p)));
+
+            Future.all(classesFutures)
+                    .onSuccess(cF -> {
+                        final Set<ClassDepsReport> classesReports = new HashSet<>();
+
+                        for (int i = 0; i < cF.size(); i++) {
+                            classesReports.add(cF.resultAt(i));
+                        }
+
+                        final String packageName = classesReports.stream()
+                                .findFirst()
+                                .map(ClassDepsReport::getPackageName)
+                                .orElse("java");
+
+                        packageReportPromise.complete(new PackageDepsReport(packageName, classesReports));
+                    })
+                    .onFailure(packageReportPromise::fail);
+
+        } catch (IOException e) {
+           packageReportPromise.fail(e);
+        }
+
+        return packageReportPromise.future();
     }
 
     public Future<ProjectDepsReport> getProjectDependencies(Path projectSrcFolder) {
@@ -69,22 +106,22 @@ public class DependencyAnalyserLib {
         // Class Name -> [Package -> Dependencies]
 
         this.vertx.executeBlocking(() -> {
-            final Map<String, Set<String>> packageWithDependencies = new HashMap<>();
-            final Set<String> types = new HashSet<>();
+                    final Map<String, Set<String>> packageWithDependencies = new HashMap<>();
+                    final Set<String> types = new HashSet<>();
 
-            new ASTVisitor().visit(compilationUnit, types);
+                    new ASTVisitor().visit(compilationUnit, types);
 
-            final String className = Objects.requireNonNull(compilationUnit.findAll(ClassOrInterfaceDeclaration.class)
-                    .stream().findFirst().orElse(null)).getNameAsString();
+                    final String className = Objects.requireNonNull(compilationUnit.findAll(ClassOrInterfaceDeclaration.class)
+                            .stream().findFirst().orElse(null)).getNameAsString();
 
-            final String packageName = compilationUnit.getPackageDeclaration()
-                    .map(NodeWithName::getNameAsString)
-                    .orElse("java");
+                    final String packageName = compilationUnit.getPackageDeclaration()
+                            .map(NodeWithName::getNameAsString)
+                            .orElse("java");
 
-            packageWithDependencies.put(packageName, types);
-            return Map.of(className, packageWithDependencies);
-        }).onSuccess(visitPromise::complete)
-        .onFailure(visitPromise::fail);
+                    packageWithDependencies.put(packageName, types);
+                    return Map.of(className, packageWithDependencies);
+                }).onSuccess(visitPromise::complete)
+                .onFailure(visitPromise::fail);
 
         return visitPromise.future();
     }
