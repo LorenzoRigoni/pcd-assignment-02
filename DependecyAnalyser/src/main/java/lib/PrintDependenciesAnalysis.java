@@ -1,29 +1,12 @@
 package lib;
 
-import java.nio.file.Path;
+import io.vertx.core.Vertx;
 
 public class PrintDependenciesAnalysis {
-    private static final DependencyAnalyserLib dependencyAnalyser = new DependencyAnalyserLib();
-    private static final String CURRENT_PATH = System.getProperty("user.dir");
-
     public static void main(String[] args) {
-        final Path classPath = Path.of(CURRENT_PATH + "\\src\\main\\java\\lib\\reports\\ClassDepsReport.java");
-        final Path packagePath = Path.of(CURRENT_PATH + "\\src\\main\\java\\lib\\reports");
+        final Vertx vertx = Vertx.vertx();
 
-        dependencyAnalyser.getClassDependencies(classPath).onComplete(res -> {
-            if(res.succeeded()) {
-                System.out.println(res.result());
-            } else
-                System.out.println(res.cause().getMessage());
-        });
-
-        dependencyAnalyser.getPackageDependencies(packagePath).onComplete(res -> {
-           if(res.succeeded()) {
-               System.out.println(res.result());
-           } else
-               System.out.println(res.cause().getMessage());
-
-           System.exit(0);
-        });
+        vertx.deployVerticle(new DependencyAnalyserVerticle())
+                .onComplete(r -> vertx.close());
     }
 }

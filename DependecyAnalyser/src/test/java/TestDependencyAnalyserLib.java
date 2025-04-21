@@ -1,4 +1,4 @@
-import com.sun.tools.javac.Main;
+import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxTestContext;
 import lib.DependencyAnalyserLib;
 import lib.reports.ClassDepsReport;
@@ -17,7 +17,8 @@ public class TestDependencyAnalyserLib {
 
     @BeforeEach
     public void beforeEach() {
-        this.dependencyAnalyserLib = new DependencyAnalyserLib();
+        final Vertx vertx = Vertx.vertx();
+        this.dependencyAnalyserLib = new DependencyAnalyserLib(vertx);
         this.testContext = new VertxTestContext();
     }
 
@@ -28,7 +29,7 @@ public class TestDependencyAnalyserLib {
         this.dependencyAnalyserLib.getClassDependencies(classSrcFile).onComplete(res -> {
             if (res.succeeded()) {
                 final ClassDepsReport report = res.result();
-                assertEquals("ClassDepsReport", report.getClassName());
+                assertEquals("ClassDepsReport", report.getClassOrInterfaceName());
                 assertEquals("lib.reports", report.getPackageName());
                 assertEquals(Set.of("Set, String"), report.getDependencies());
                 this.testContext.completeNow();

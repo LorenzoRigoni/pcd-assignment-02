@@ -1,20 +1,21 @@
 package lib.reports;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class ClassDepsReport {
-    private final String className;
+    private final String classOrInterfaceName;
     private final String packageName;
     private final Set<String> dependencies;
 
-    public ClassDepsReport(String className, String packageName, Set<String> dependencies) {
-        this.className = className;
+    public ClassDepsReport(String classOrInterfaceName, String packageName, Set<String> dependencies) {
+        this.classOrInterfaceName = classOrInterfaceName;
         this.packageName = packageName;
         this.dependencies = dependencies;
     }
 
-    public String getClassName() {
-        return this.className;
+    public String getClassOrInterfaceName() {
+        return this.classOrInterfaceName;
     }
 
     public String getPackageName() {
@@ -22,13 +23,13 @@ public class ClassDepsReport {
     }
 
     public Set<String> getDependencies() {
-        return this.dependencies;
+        return new HashSet<>(this.dependencies);
     }
 
     @Override
     public String toString() {
-        return "\n\t[" +
-                "className = '" + this.className + '\'' +
+        return "\n[" +
+                "classOrInterfaceName = '" + this.classOrInterfaceName + '\'' +
                 ", packageName = '" + this.packageName + '\'' +
                 ", dependencies = " + this.dependencies +
                 "]";

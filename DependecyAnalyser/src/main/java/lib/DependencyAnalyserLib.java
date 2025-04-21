@@ -20,13 +20,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DependencyAnalyserLib {
-
     private final Vertx vertx;
 
-    public DependencyAnalyserLib() {
-        this.vertx = Vertx.vertx();
+    public DependencyAnalyserLib(Vertx vertx) {
+        this.vertx = vertx;
     }
 
+    /**
+     * Get the name, the package name and the dependencies of a class or an interface in Java.
+     *
+     * @param classSrcFile the absolute path of the class/interface
+     * @return a Future result that contains the name, the package name and the dependencies
+     */
     public Future<ClassDepsReport> getClassDependencies(Path classSrcFile) {
         final Promise<ClassDepsReport> classReportPromise = Promise.promise();
 
@@ -43,43 +48,46 @@ public class DependencyAnalyserLib {
         return classReportPromise.future();
     }
 
+    /**
+     * Get the package name and all the reports of the classes contained in the package.
+     *
+     * @param packageSrcFolder the absolute path of the package
+     * @return a Future result that contains the package name and all the reports of the classes contained in the package.
+     */
     public Future<PackageDepsReport> getPackageDependencies(Path packageSrcFolder) {
         final Promise<PackageDepsReport> packageReportPromise = Promise.promise();
 
-        try (final Stream<Path> files = Files.walk(packageSrcFolder)) {
-            final List<Path> paths = files
-                    .filter(Files::isRegularFile)
-                    .filter(p -> p.toString().endsWith(".java"))
-                    .toList();
+        this.getFilesPaths(packageSrcFolder)
+                .compose(paths -> {
+                    final List<Future<ClassDepsReport>> classesFutures = new ArrayList<>();
 
-            final List<Future<ClassDepsReport>> classesFutures = new ArrayList<>();
+                    paths.forEach(p -> classesFutures.add(this.getClassDependencies(p)));
 
-            paths.forEach(p -> classesFutures.add(this.getClassDependencies(p)));
+                    return Future.all(classesFutures);
+                }).onSuccess(cF -> {
+                    final Set<ClassDepsReport> classesReports = new HashSet<>();
 
-            Future.all(classesFutures)
-                    .onSuccess(cF -> {
-                        final Set<ClassDepsReport> classesReports = new HashSet<>();
+                    for (int i = 0; i < cF.size(); i++) {
+                        classesReports.add(cF.resultAt(i));
+                    }
 
-                        for (int i = 0; i < cF.size(); i++) {
-                            classesReports.add(cF.resultAt(i));
-                        }
+                    final String packageName = classesReports.stream()
+                            .findFirst()
+                            .map(ClassDepsReport::getPackageName)
+                            .orElse("java");
 
-                        final String packageName = classesReports.stream()
-                                .findFirst()
-                                .map(ClassDepsReport::getPackageName)
-                                .orElse("java");
-
-                        packageReportPromise.complete(new PackageDepsReport(packageName, classesReports));
-                    })
-                    .onFailure(packageReportPromise::fail);
-
-        } catch (IOException e) {
-           packageReportPromise.fail(e);
-        }
+                    packageReportPromise.complete(new PackageDepsReport(packageName, classesReports));
+                }).onFailure(packageReportPromise::fail);
 
         return packageReportPromise.future();
     }
 
+    /**
+     * Get the project name and all the reports of the packages contained in the Java project.
+     *
+     * @param projectSrcFolder the absolute path of the Java project.
+     * @return a Future result that contains the project name and all the reports of the packages contained in the Java project
+     */
     public Future<ProjectDepsReport> getProjectDependencies(Path projectSrcFolder) {
         return null;
     }
@@ -98,7 +106,7 @@ public class DependencyAnalyserLib {
     }
 
     private Future<CompilationUnit> parseSourceCode(String sourceCode) {
-        return this.vertx.executeBlocking(() -> StaticJavaParser.parse(sourceCode), false);
+        return this.vertx.executeBlocking(() -> StaticJavaParser.parse(sourceCode), true);
     }
 
     private Future<Map<String, Map<String, Set<String>>>> visitAST(CompilationUnit compilationUnit) {
@@ -124,5 +132,23 @@ public class DependencyAnalyserLib {
                 .onFailure(visitPromise::fail);
 
         return visitPromise.future();
+    }
+
+    private Future<Set<Path>> getFilesPaths(Path packagePath) {
+        final Promise<Set<Path>> pathsPromise = Promise.promise();
+
+        this.vertx.executeBlocking(() -> {
+            try (final Stream<Path> paths = Files.walk(packagePath)) {
+                return paths
+                        .filter(Files::isRegularFile)
+                        .filter(p -> p.toString().endsWith(".java"))
+                        .collect(Collectors.toSet());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).onSuccess(pathsPromise::complete)
+        .onFailure(pathsPromise::fail);
+
+        return pathsPromise.future();
     }
 }
