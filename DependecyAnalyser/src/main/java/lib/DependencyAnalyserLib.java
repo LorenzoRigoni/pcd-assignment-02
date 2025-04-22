@@ -132,7 +132,7 @@ public class DependencyAnalyserLib {
 
     private Future<Map<String, Map<String, Set<String>>>> visitAST(CompilationUnit compilationUnit) {
         final Promise<Map<String, Map<String, Set<String>>>> visitPromise = Promise.promise();
-        // Class Name -> [Package -> Dependencies]
+        // [Class Name -> [Package -> Dependencies]]
 
         this.vertx.executeBlocking(() -> {
             final Map<String, Set<String>> packageWithDependencies = new HashMap<>();

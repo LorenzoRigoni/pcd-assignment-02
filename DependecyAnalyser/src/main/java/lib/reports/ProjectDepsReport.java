@@ -19,11 +19,4 @@ public class ProjectDepsReport {
     public Set<PackageDepsReport> getPackages() {
         return new HashSet<>(this.packages);
     }
-
-    @Override
-    public String toString() {
-        return "[projectName='" + this.projectName +
-                ", packages=\n" + this.packages +
-                "\n]";
-    }
 }

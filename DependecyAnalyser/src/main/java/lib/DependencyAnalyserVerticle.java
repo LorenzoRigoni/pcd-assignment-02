@@ -25,14 +25,38 @@ public class DependencyAnalyserVerticle extends AbstractVerticle {
 
         Future.join(classReport, packageReport, projectReport)
                 .onSuccess(res -> {
-                    System.out.println("Report of Java file " + classReport.result().getClassOrInterfaceName());
-                    System.out.println(classReport.result() + "\n");
-                    System.out.println("Report of package " + packageReport.result().getPackageName());
-                    System.out.println(packageReport.result() + "\n");
-                    System.out.println("Report of project " + projectReport.result().getProjectName());
-                    System.out.println(projectReport.result());
+                    logClassReport(classReport.result());
+                    System.out.println();
+                    logPackageReport(packageReport.result());
+                    System.out.println();
+                    logProjectReport(projectReport.result());
                     startPromise.complete();
                 })
                 .onFailure(System.err::println);
+    }
+
+    private void logClassReport(ClassDepsReport classReport) {
+        System.out.println("-----------------------------------");
+        System.out.println("Report of Java file " + classReport.getClassOrInterfaceName());
+        System.out.println("Class or interface name: " + classReport.getClassOrInterfaceName());
+        System.out.println("Package name: " + classReport.getPackageName());
+        System.out.println("Dependencies: " + classReport.getDependencies());
+        System.out.println("-----------------------------------");
+    }
+
+    private void logPackageReport(PackageDepsReport packageReport) {
+        System.out.println("--------------------------------------");
+        System.out.println("Report of Java package " + packageReport.getPackageName());
+        for (ClassDepsReport classReport : packageReport.getClassesAndInterfaces())
+            logClassReport(classReport);
+        System.out.println("--------------------------------------");
+    }
+
+    private void logProjectReport(ProjectDepsReport projectReport) {
+        System.out.println("-----------------------------------------");
+        System.out.println("Report of Java project " + projectReport.getProjectName());
+        for (PackageDepsReport packageReport : projectReport.getPackages())
+            logPackageReport(packageReport);
+        System.out.println("-----------------------------------------");
     }
 }

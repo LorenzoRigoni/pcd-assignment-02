@@ -19,12 +19,4 @@ public class PackageDepsReport {
     public Set<ClassDepsReport> getClassesAndInterfaces() {
         return new HashSet<>(this.classesAndInterfaces);
     }
-
-    @Override
-    public String toString() {
-        return "[" +
-                "packageName='" + this.packageName + '\'' +
-                ", classesAndInterfaces=" + this.classesAndInterfaces +
-                "\n]\n";
-    }
 }

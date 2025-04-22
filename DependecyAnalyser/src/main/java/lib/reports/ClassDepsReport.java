@@ -25,13 +25,4 @@ public class ClassDepsReport {
     public Set<String> getDependencies() {
         return new HashSet<>(this.dependencies);
     }
-
-    @Override
-    public String toString() {
-        return "\n[" +
-                "classOrInterfaceName = '" + this.classOrInterfaceName + '\'' +
-                ", packageName = '" + this.packageName + '\'' +
-                ", dependencies = " + this.dependencies +
-                "]";
-    }
 }
