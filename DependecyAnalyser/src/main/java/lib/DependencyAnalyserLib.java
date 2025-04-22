@@ -127,7 +127,7 @@ public class DependencyAnalyserLib {
     }
 
     private Future<CompilationUnit> parseSourceCode(String sourceCode) {
-        return this.vertx.executeBlocking(() -> StaticJavaParser.parse(sourceCode), true);
+        return this.vertx.executeBlocking(() -> StaticJavaParser.parse(sourceCode), false);
     }
 
     private Future<Map<String, Map<String, Set<String>>>> visitAST(CompilationUnit compilationUnit) {

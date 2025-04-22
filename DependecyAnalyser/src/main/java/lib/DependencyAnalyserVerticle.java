@@ -23,7 +23,7 @@ public class DependencyAnalyserVerticle extends AbstractVerticle {
         final Future<PackageDepsReport> packageReport = dependencyAnalyser.getPackageDependencies(PACKAGE_PATH);
         final Future<ProjectDepsReport> projectReport = dependencyAnalyser.getProjectDependencies(PROJECT_PATH);
 
-        Future.join(classReport, packageReport, projectReport)
+        Future.all(classReport, packageReport, projectReport)
                 .onSuccess(res -> {
                     logClassReport(classReport.result());
                     System.out.println();

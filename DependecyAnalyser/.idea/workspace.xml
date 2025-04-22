@@ -6,12 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="f820731e-0602-4b0a-b0b9-37647c86cc31" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lib/ClassOrInterfaceVisitor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/ClassOrInterfaceVisitor.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/lib/DependencyAnalyserLib.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/DependencyAnalyserLib.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/lib/DependencyAnalyserVerticle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/DependencyAnalyserVerticle.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/lib/reports/ClassDepsReport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/reports/ClassDepsReport.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/lib/reports/PackageDepsReport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/reports/PackageDepsReport.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/lib/reports/ProjectDepsReport.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/reports/ProjectDepsReport.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/TestDependencyAnalyserLib.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,26 +38,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.PrintDependenciesAnalysis.executor": "Run",
-    "JUnit.TestDependecyAnalyserLib.executor": "Run",
-    "JUnit.TestDependecyAnalyserLib.test.executor": "Run",
-    "JUnit.TestDependencyAnalyserLib.testClassDependencyAnalyser (1).executor": "Run",
-    "JUnit.TestDependencyAnalyserLib.testClassDependencyAnalyser.executor": "Run",
-    "JUnit.TestDependencyAnalyserLib.testPackageDependencyAnalyser.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.PrintDependenciesAnalysis.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TestDependecyAnalyserLib.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TestDependecyAnalyserLib.test.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TestDependencyAnalyserLib.testClassDependencyAnalyser (1).executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TestDependencyAnalyserLib.testClassDependencyAnalyser.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TestDependencyAnalyserLib.testPackageDependencyAnalyser.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Application.PrintDependenciesAnalysis">
     <configuration name="PrintDependenciesAnalysis" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="lib.PrintDependenciesAnalysis" />
@@ -147,7 +144,9 @@
       <workItem from="1745177792694" duration="3007000" />
       <workItem from="1745221089232" duration="3393000" />
       <workItem from="1745255911619" duration="1187000" />
-      <workItem from="1745311962032" duration="3964000" />
+      <workItem from="1745311962032" duration="4228000" />
+      <workItem from="1745322833579" duration="3413000" />
+      <workItem from="1745332940582" duration="3024000" />
     </task>
     <servers />
   </component>
