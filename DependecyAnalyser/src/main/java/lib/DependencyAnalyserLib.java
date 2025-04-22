@@ -4,7 +4,6 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.nodeTypes.NodeWithName;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
@@ -89,7 +88,29 @@ public class DependencyAnalyserLib {
      * @return a Future result that contains the project name and all the reports of the packages contained in the Java project
      */
     public Future<ProjectDepsReport> getProjectDependencies(Path projectSrcFolder) {
-        return null;
+        final Promise<ProjectDepsReport> projectReportPromise = Promise.promise();
+
+        this.getProjectEntryPoint(projectSrcFolder)
+                .compose(this::getPackagesPaths)
+                .compose(paths -> {
+                    final List<Future<PackageDepsReport>> packagesFutures = new ArrayList<>();
+
+                    paths.forEach(p -> packagesFutures.add(this.getPackageDependencies(p)));
+
+                    return Future.all(packagesFutures);
+                }).onSuccess(cF -> {
+                    final Set<PackageDepsReport> packagesReports = new HashSet<>();
+
+                    for (int i = 0; i < cF.size(); i++) {
+                        packagesReports.add(cF.resultAt(i));
+                    }
+
+                    final String projectName = projectSrcFolder.getFileName().toString();
+
+                    projectReportPromise.complete(new ProjectDepsReport(projectName, packagesReports));
+                }).onFailure(projectReportPromise::fail);
+
+        return projectReportPromise.future();
     }
 
     private Future<String> readFile(Path path) {
@@ -114,22 +135,22 @@ public class DependencyAnalyserLib {
         // Class Name -> [Package -> Dependencies]
 
         this.vertx.executeBlocking(() -> {
-                    final Map<String, Set<String>> packageWithDependencies = new HashMap<>();
-                    final Set<String> types = new HashSet<>();
+            final Map<String, Set<String>> packageWithDependencies = new HashMap<>();
+            final Set<String> types = new HashSet<>();
 
-                    new ASTVisitor().visit(compilationUnit, types);
+            new ClassOrInterfaceVisitor().visit(compilationUnit, types);
 
-                    final String className = Objects.requireNonNull(compilationUnit.findAll(ClassOrInterfaceDeclaration.class)
-                            .stream().findFirst().orElse(null)).getNameAsString();
+            final String className = Objects.requireNonNull(compilationUnit.findAll(ClassOrInterfaceDeclaration.class)
+                    .stream().findFirst().orElse(null)).getNameAsString();
 
-                    final String packageName = compilationUnit.getPackageDeclaration()
-                            .map(NodeWithName::getNameAsString)
-                            .orElse("java");
+            final String packageName = compilationUnit.getPackageDeclaration()
+                    .map(NodeWithName::getNameAsString)
+                    .orElse("java");
 
-                    packageWithDependencies.put(packageName, types);
-                    return Map.of(className, packageWithDependencies);
-                }).onSuccess(visitPromise::complete)
-                .onFailure(visitPromise::fail);
+            packageWithDependencies.put(packageName, types);
+            return Map.of(className, packageWithDependencies);
+        }).onSuccess(visitPromise::complete)
+        .onFailure(visitPromise::fail);
 
         return visitPromise.future();
     }
@@ -142,6 +163,46 @@ public class DependencyAnalyserLib {
                 return paths
                         .filter(Files::isRegularFile)
                         .filter(p -> p.toString().endsWith(".java"))
+                        .collect(Collectors.toSet());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).onSuccess(pathsPromise::complete)
+        .onFailure(pathsPromise::fail);
+
+        return pathsPromise.future();
+    }
+
+    private Future<Path> getProjectEntryPoint(Path projectSrcFolder) {
+        final Promise<Path> projectEntryPointPromise = Promise.promise();
+
+        this.vertx.executeBlocking(() -> {
+            try (final Stream<Path> paths = Files.walk(projectSrcFolder)) {
+                Optional<Path> srcFolderPath = paths
+                        .filter(Files::isDirectory)
+                        .filter(p -> p.getFileName().toString().equals("java"))
+                        .findFirst();
+                if (srcFolderPath.isPresent())
+                    return srcFolderPath.get();
+                else
+                    throw new RuntimeException("Could not find Java source folder");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).onSuccess(projectEntryPointPromise::complete)
+        .onFailure(projectEntryPointPromise::fail);
+
+        return projectEntryPointPromise.future();
+    }
+
+    private Future<Set<Path>> getPackagesPaths(Path projectEntryPoint) {
+        final Promise<Set<Path>> pathsPromise = Promise.promise();
+
+        this.vertx.executeBlocking(() -> {
+            try (final Stream<Path> paths = Files.walk(projectEntryPoint)) {
+                return paths
+                        .filter(Files::isDirectory)
+                        .filter(p -> !p.equals(projectEntryPoint))
                         .collect(Collectors.toSet());
             } catch (IOException e) {
                 throw new RuntimeException(e);
