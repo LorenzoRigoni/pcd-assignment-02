@@ -37,7 +37,7 @@ public class DependencyAnalyser extends JFrame {
         this.centralPanel.setBackground(Color.WHITE);
 
         this.bottomPanel = new JPanel(new GridLayout(1,2));
-        this.bottomPanel.setPreferredSize(new Dimension(800, 30));
+        this.bottomPanel.setPreferredSize(new Dimension(800, 35));
         this.bottomPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         this.classesAnalyzedLabel = new JLabel("Classes/Interfaces analyzed: ");
         this.dependenciesFoundLabel = new JLabel("Dependencies found: ");
