@@ -2,11 +2,16 @@ package gui;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.swing_viewer.SwingViewer;
+import org.graphstream.ui.swing_viewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
+
+import javax.swing.*;
 
 public class DependencyGraph {
     private Graph graph;
     private Viewer viewer;
+    private ViewPanel viewPanel;
 
     public DependencyGraph() {
 
@@ -16,8 +21,15 @@ public class DependencyGraph {
 
         graph.setAttribute("ui.stylesheet", styleSheet());
 
-        viewer = graph.display(); // crea una finestra Swing separata TO FIX
+        viewer = new SwingViewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
         viewer.enableAutoLayout();
+
+        viewPanel = (ViewPanel) viewer.addDefaultView(false);
+
+    }
+
+    public JComponent getGraphComponent() {
+        return viewPanel;
     }
 
     public void addDependency(String from, String to) {

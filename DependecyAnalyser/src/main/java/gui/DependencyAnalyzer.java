@@ -43,10 +43,13 @@ public class DependencyAnalyzer extends JFrame {
         this.topPanel.add(pathField, BorderLayout.CENTER);
         this.topPanel.add(startBtn, BorderLayout.EAST);
 
-        this.centralPanel = new JPanel();
+        this.centralPanel = new JPanel(new BorderLayout());
         this.centralPanel.setBorder(BorderFactory.createEmptyBorder());
         this.centralPanel.setName("Dependency Graph");
         this.centralPanel.setBackground(Color.WHITE);
+
+        JComponent graphComponent = dependencyGraph.getGraphComponent();
+        this.centralPanel.add(graphComponent, BorderLayout.CENTER);
 
         this.bottomPanel = new JPanel(new GridLayout(1,2));
         this.bottomPanel.setPreferredSize(new Dimension(800, 35));
