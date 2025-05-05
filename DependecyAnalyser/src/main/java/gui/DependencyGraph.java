@@ -53,12 +53,12 @@ public class DependencyGraph {
     private String styleSheet() {
         return """
                 node {
-                         size: 100px, 40px;
+                         size: 80px, 30px;
                          shape: box;
                          fill-color: lightblue;
                          stroke-mode: plain;
                          stroke-color: black;
-                         text-size: 16;
+                         text-size: 12;
                          text-alignment: center;
                      }
                 
