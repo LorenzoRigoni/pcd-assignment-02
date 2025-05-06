@@ -24,8 +24,8 @@ public class DependencyAnalyzer extends JFrame {
     public DependencyAnalyzer() {
 
 
-        this.dependencyGraph = new DependencyGraph(); // Mostra il grafo in una finestra separata
-        this.dependencyScanner = new DependencyScanner();
+        this.dependencyGraph = new DependencyGraph();
+        this.dependencyScanner = null;
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
@@ -72,16 +72,22 @@ public class DependencyAnalyzer extends JFrame {
             JOptionPane.showMessageDialog(this, "Select a folder before starting the analysis.");
             return;
         }
+
+        dependencyGraph.reset();
         classesCounter = 0;
         dependenciesCounter = 0;
         classesAnalyzedLabel.setText("Classes/Interfaces analyzed: 0");
         dependenciesFoundLabel.setText("Dependencies found: 0");
 
-        // Usa DependencyScanner per analizzare le dipendenze
-        dependencyScanner.analyzeDependencies(folderPath)
-                .subscribe(result -> updateGUIWithResult(result),
-                        error -> JOptionPane.showMessageDialog(this, "Error analyzing dependencies."));
+        // Inizializza DependencyScannerRx ora che abbiamo il path
+        this.dependencyScanner= new DependencyScanner(folderPath);
+
+        dependencyScanner.analyze(folderPath)
+                .subscribe(result -> SwingUtilities.invokeLater(() -> updateGUIWithResult(result)),
+                        error -> SwingUtilities.invokeLater(() ->
+                                JOptionPane.showMessageDialog(this, "Error analyzing dependencies: " + error.getMessage())));
     }
+
 
     private void updateGUIWithResult(DependencyScanner.DependencyResult result) {
         classesCounter++;
@@ -93,6 +99,7 @@ public class DependencyAnalyzer extends JFrame {
             dependencyGraph.addDependency(result.className, dep);
         }
     }
+
 
     public static void main(String[] args) {
         System.setProperty("org.graphstream.ui", "swing");

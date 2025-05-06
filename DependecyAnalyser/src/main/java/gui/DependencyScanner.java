@@ -3,9 +3,20 @@ package gui;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.expr.MethodCallExpr;
-import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.resolution.Resolvable;
+import com.github.javaparser.resolution.TypeSolver;
+import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
+import com.github.javaparser.resolution.types.ResolvedType;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
+
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableSource;
+import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import java.io.File;
@@ -16,13 +27,24 @@ import java.util.stream.Collectors;
 
 public class DependencyScanner {
 
-    public Observable<DependencyResult> analyzeDependencies(String folderPath) {
+    private final TypeSolver typeSolver;
+
+    public DependencyScanner(String projectRootPath) {
+        this.typeSolver = new CombinedTypeSolver(
+                new ReflectionTypeSolver(), // Per classi standard Java
+                new JavaParserTypeSolver(new File(projectRootPath)) // Per le classi nel progetto
+        );
+
+        JavaSymbolSolver solver = new JavaSymbolSolver(typeSolver);
+        StaticJavaParser.getConfiguration().setSymbolResolver(solver);
+    }
+
+    public Observable<DependencyResult> analyze(String folderPath) {
         return Observable.fromIterable(getJavaFiles(folderPath))
                 .subscribeOn(Schedulers.io())
-                .flatMap(file -> Observable.fromCallable(() -> parseFile(file))
-                        .onErrorResumeNext(error -> Observable.empty()))
+                .flatMap(this::parseFileReactive)
                 .flatMap(cu -> Observable.fromIterable(cu.findAll(ClassOrInterfaceDeclaration.class)))
-                .map(clazz -> extractDependencies(clazz))
+                .map(this::extractResolvedDependencies)
                 .observeOn(Schedulers.single());
     }
 
@@ -38,35 +60,40 @@ public class DependencyScanner {
         }
     }
 
-    private static CompilationUnit parseFile(File file) throws IOException {
-        return StaticJavaParser.parse(file);
+    private Observable<CompilationUnit> parseFileReactive(File file) {
+        return Observable.fromCallable(() -> StaticJavaParser.parse(file))
+                .onErrorResumeNext(throwable -> {
+                    System.err.println("Errore nel parsing del file: " + throwable.getMessage());
+                    return Observable.empty();
+                });
+
     }
 
-    private static DependencyResult extractDependencies(ClassOrInterfaceDeclaration clazz) {
-        String className = clazz.getNameAsString();
+    private DependencyResult extractResolvedDependencies(ClassOrInterfaceDeclaration clazz) {
+        String classFQN;
+        try {
+            classFQN = clazz.resolve().getQualifiedName();
+        } catch (Exception e) {
+            classFQN = clazz.getNameAsString(); // fallback se non risolto
+        }
+
         Set<String> dependencies = new HashSet<>();
 
-        // Estende o implementa
-        clazz.getExtendedTypes().forEach(t -> dependencies.add(t.getNameAsString()));
-        clazz.getImplementedTypes().forEach(t -> dependencies.add(t.getNameAsString()));
-
-        // Tipi usati nei campi
-        clazz.findAll(com.github.javaparser.ast.body.FieldDeclaration.class).forEach(field -> {
-            dependencies.add(field.getElementType().asString());
+        // Analizza tutti i tipi usati nella classe
+        clazz.findAll(Type.class).forEach(type -> {
+            try {
+                ResolvedType resolvedType = JavaParserFacade.get(typeSolver).convertToUsage(type);
+                if (resolvedType.isReferenceType()) {
+                    dependencies.add(resolvedType.asReferenceType().getQualifiedName());
+                } else {
+                    dependencies.add(resolvedType.describe());
+                }
+            } catch (Exception ignored) {
+                // In caso non riuscisse a risolvere un tipo
+            }
         });
 
-        // Tipi usati nei metodi (parametri e ritorni)
-        clazz.findAll(com.github.javaparser.ast.body.MethodDeclaration.class).forEach(method -> {
-            dependencies.add(method.getType().asString());
-            method.getParameters().forEach(param -> dependencies.add(param.getType().asString()));
-        });
-
-        // Tipi usati nel corpo della classe (più approfondito, ma approssimato)
-        clazz.findAll(com.github.javaparser.ast.type.Type.class).forEach(t -> {
-            dependencies.add(t.asString());
-        });
-
-        return new DependencyResult(className, new ArrayList<>(dependencies));
+        return new DependencyResult(classFQN, new ArrayList<>(dependencies));
     }
 
     public static class DependencyResult {
@@ -78,6 +105,4 @@ public class DependencyScanner {
             this.dependencies = dependencies;
         }
     }
-
-
 }
