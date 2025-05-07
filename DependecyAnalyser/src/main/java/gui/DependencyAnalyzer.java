@@ -4,8 +4,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.File;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class DependencyAnalyzer extends JFrame {
     private JButton startBtn;
@@ -22,8 +20,6 @@ public class DependencyAnalyzer extends JFrame {
     private DependencyScanner dependencyScanner;
 
     public DependencyAnalyzer() {
-
-
         this.dependencyGraph = new DependencyGraph();
         this.dependencyScanner = null;
 
@@ -60,7 +56,7 @@ public class DependencyAnalyzer extends JFrame {
         this.bottomPanel.add(dependenciesFoundLabel);
 
         add(topPanel, BorderLayout.NORTH);
-        add(new JScrollPane(centralPanel), BorderLayout.CENTER);
+        add(centralPanel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
         setVisible(true);
@@ -79,15 +75,13 @@ public class DependencyAnalyzer extends JFrame {
         classesAnalyzedLabel.setText("Classes/Interfaces analyzed: 0");
         dependenciesFoundLabel.setText("Dependencies found: 0");
 
-        // Inizializza DependencyScannerRx ora che abbiamo il path
-        this.dependencyScanner= new DependencyScanner(folderPath);
+        this.dependencyScanner = new DependencyScanner(folderPath);
 
         dependencyScanner.analyze(folderPath)
                 .subscribe(result -> SwingUtilities.invokeLater(() -> updateGUIWithResult(result)),
                         error -> SwingUtilities.invokeLater(() ->
                                 JOptionPane.showMessageDialog(this, "Error analyzing dependencies: " + error.getMessage())));
     }
-
 
     private void updateGUIWithResult(DependencyScanner.DependencyResult result) {
         classesCounter++;
@@ -96,10 +90,10 @@ public class DependencyAnalyzer extends JFrame {
         dependenciesFoundLabel.setText("Dependencies found: " + dependenciesCounter);
 
         for (String dep : result.dependencies) {
+            System.out.println("Found: " + result.className + " -> " + dep); // Debugging
             dependencyGraph.addDependency(result.className, dep);
         }
     }
-
 
     public static void main(String[] args) {
         System.setProperty("org.graphstream.ui", "swing");
