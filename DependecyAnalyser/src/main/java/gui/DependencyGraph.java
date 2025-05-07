@@ -3,6 +3,7 @@ package gui;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.layout.springbox.implementations.LinLog;
+import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swing_viewer.SwingViewer;
 import org.graphstream.ui.swing_viewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
@@ -20,9 +21,15 @@ public class DependencyGraph {
         graph.setAutoCreate(true);
 
         graph.setAttribute("ui.stylesheet", styleSheet());
+        graph.setAttribute("ui.quality");
+        graph.setAttribute("ui.antialias");
+
+        var layout = new SpringBox(false);
+        layout.setQuality(1);
+        layout.setForce(0.5);
 
         viewer = new SwingViewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-        viewer.enableAutoLayout(new LinLog(false));  // Miglior layout
+        viewer.enableAutoLayout(layout);
 
         viewPanel = (ViewPanel) viewer.addDefaultView(false);
     }
@@ -75,22 +82,21 @@ public class DependencyGraph {
         }
 
         node {
-            shape: box;
+            shape: rounded-box;
             size-mode: fit;
-            padding: 10px, 5px;
+            padding: 20px, 15px;
             text-size: 18;
-            text-color: black;
-            text-style: bold;
-            text-alignment: center;
             stroke-mode: plain;
+            stroke-color: black;
+            fill-color: white;
         }
 
         edge {
             arrow-shape: arrow;
-            arrow-size: 12px, 8px;
-            fill-color: #888;
+            arrow-size: 4px, 3px;
+            fill-color: #444;
         }
-    """;
+        """;
     }
 
 }
