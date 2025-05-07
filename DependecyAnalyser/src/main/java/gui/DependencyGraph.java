@@ -80,32 +80,33 @@ public class DependencyGraph {
 
     private String styleSheet() {
         return """
-            node.standard {
-                fill-color: #f9f9f9;
-                stroke-color: black;
-            }
-
-            node.custom {
-                fill-color: #d0e8ff;
-                stroke-color: black;
-            }
-
-            node {
-                         shape: rounded-box;            
-                         size-mode: fit;             
-                         padding: 10px, 5px;         
-                         text-size: 16;              
-                         stroke-mode: plain;
-                         stroke-color: black;
-                         fill-color: white;
-            }
+                node.standard {
+                    fill-color: #f9f9f9;
+                    stroke-color: black;
+                }
                 
-
-            edge {
-                arrow-shape: arrow;
-                arrow-size: 4px, 3px;
-                fill-color: #444;
-            }
-        """;
+                node.custom {
+                    fill-color: #d0e8ff;
+                    stroke-color: black;
+                }
+                
+                node {
+                    shape: box;               // oppure "rounded-box"
+                    size-mode: fit;
+                    padding: 18px, 12px;      // margini per evitare sovrapposizioni
+                    text-size: 16;
+                    text-color: black;
+                    text-style: bold;
+                    text-alignment: center;
+                    stroke-mode: plain;
+                    stroke-color: black;
+                }
+                
+                edge {
+                    arrow-shape: arrow;       // oppure "none"
+                    arrow-size: 6px, 4px;     // frecce più piccole
+                    fill-color: #666;
+                }
+                """;
     }
 }
