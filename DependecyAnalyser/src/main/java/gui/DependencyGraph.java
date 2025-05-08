@@ -32,14 +32,17 @@ public class DependencyGraph {
         layout.setQuality(1);
         layout.setForce(1.0);
 
+
+
         viewer = new SwingViewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+
         viewer.enableAutoLayout(layout);
     }
 
     public JComponent getGraphComponent() {
         if (viewPanel == null) {
             viewPanel = (ViewPanel) viewer.addDefaultView(false);
-            viewPanel.setPreferredSize(new java.awt.Dimension(2000, 2000)); // dimensione virtuale grande
+            viewPanel.setPreferredSize(new java.awt.Dimension(3000, 3000)); // dimensione virtuale grande
 
             graph.setAttribute("ui.stylesheet", styleSheet());
 
@@ -74,10 +77,13 @@ public class DependencyGraph {
         node.setAttribute("ui.label", simpleName);
         node.setAttribute("ui.class", isStandard ? "standard" : "custom");
 
+        // Ottieni il nome del pacchetto
         final String packageName = getPackageName(fullName);
+        // Ottieni o genera un colore per il pacchetto
         final String nodeColor = getColorForPackage(packageName);
-        node.setAttribute("ui.custom.fill-color", nodeColor);
+        node.setAttribute("ui.fill-color", nodeColor);
     }
+
 
     private String getPackageName(String fullName) {
         int lastDot = fullName.lastIndexOf('.');
