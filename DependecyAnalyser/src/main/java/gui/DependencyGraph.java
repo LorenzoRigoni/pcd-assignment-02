@@ -2,6 +2,7 @@ package gui;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.layout.springbox.implementations.LinLog;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swing_viewer.SwingViewer;
 import org.graphstream.ui.swing_viewer.ViewPanel;
@@ -29,7 +30,7 @@ public class DependencyGraph {
 
         var layout = new SpringBox(false);
         layout.setQuality(1);
-        layout.setForce(0.5);
+        layout.setForce(1.0);
 
         viewer = new SwingViewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
         viewer.enableAutoLayout(layout);
@@ -38,17 +39,20 @@ public class DependencyGraph {
     public JComponent getGraphComponent() {
         if (viewPanel == null) {
             viewPanel = (ViewPanel) viewer.addDefaultView(false);
-            viewPanel.setPreferredSize(new java.awt.Dimension(600, 400));
+            viewPanel.setPreferredSize(new java.awt.Dimension(2000, 2000)); // dimensione virtuale grande
 
-            // Riapplica il CSS per assicurarsi che venga visualizzato correttamente
             graph.setAttribute("ui.stylesheet", styleSheet());
 
-            // Forza ridisegno
             viewPanel.revalidate();
             viewPanel.repaint();
         }
-        return viewPanel;
+
+        JScrollPane scrollPane = new JScrollPane(viewPanel);
+        scrollPane.setPreferredSize(new java.awt.Dimension(800, 600)); // dimensione visibile
+
+        return scrollPane;
     }
+
 
     public void addDependency(String from, String to) {
         addNodeIfAbsent(from);
