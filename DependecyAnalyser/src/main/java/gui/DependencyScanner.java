@@ -1,5 +1,6 @@
 package gui;
 
+import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -30,17 +31,40 @@ public class DependencyScanner {
     private final TypeSolver typeSolver;
 
     public DependencyScanner(String projectRootPath) {
+        final File projectRootFile = new File(projectRootPath);
+
+        final File sourceRoot;
+        if (projectRootFile.isFile())
+            sourceRoot = projectRootFile.getParentFile();
+        else if (projectRootFile.isDirectory())
+            sourceRoot = projectRootFile;
+        else
+            throw new IllegalArgumentException("Not valid path " + projectRootPath);
+
         this.typeSolver = new CombinedTypeSolver(
-                new ReflectionTypeSolver(), // Per classi standard Java
-                new JavaParserTypeSolver(new File(projectRootPath)) // Per le classi nel progetto
+                new ReflectionTypeSolver(),
+                new JavaParserTypeSolver(sourceRoot)
         );
 
         JavaSymbolSolver solver = new JavaSymbolSolver(typeSolver);
-        StaticJavaParser.getConfiguration().setSymbolResolver(solver);
+        StaticJavaParser.getConfiguration()
+                .setSymbolResolver(solver);
     }
 
-    public Observable<DependencyResult> analyze(String folderPath) {
-        return Observable.fromIterable(getJavaFiles(folderPath))
+    public Observable<DependencyResult> analyze(String path) {
+        final File file = new File(path);
+        if (!file.exists())
+            return Observable.error(new IllegalArgumentException("File not found at path " + path));
+
+        final List<File> files;
+        if (file.isFile() && path.endsWith(".java"))
+            files = Collections.singletonList(file);
+        else if (file.isDirectory())
+            files = this.getJavaFiles(path);
+        else
+            return Observable.error(new IllegalArgumentException("No Java project/package/class found in " + path));
+
+        return Observable.fromIterable(files)
                 .subscribeOn(Schedulers.io())
                 .flatMap(this::parseFileReactive)
                 .flatMap(cu -> Observable.fromIterable(cu.findAll(ClassOrInterfaceDeclaration.class)))
@@ -69,20 +93,23 @@ public class DependencyScanner {
 
     }
 
-    private DependencyResult extractResolvedDependencies(ClassOrInterfaceDeclaration clazz) {
+    private DependencyResult extractResolvedDependencies(ClassOrInterfaceDeclaration classDec) {
         String classFQN;
         try {
-            classFQN = clazz.resolve().getQualifiedName();
+            classFQN = classDec.resolve().getQualifiedName();
         } catch (Exception e) {
-            classFQN = clazz.getNameAsString(); // fallback se non risolto
+            classFQN = classDec.getNameAsString(); // fallback se non risolto
         }
 
         Set<String> dependencies = new HashSet<>();
 
         // Analizza tutti i tipi usati nella classe
-        clazz.findAll(Type.class).forEach(type -> {
+        classDec.findAll(Type.class).forEach(type -> {
             try {
                 ResolvedType resolvedType = JavaParserFacade.get(typeSolver).convertToUsage(type);
+                if(resolvedType.isPrimitive() || resolvedType.isVoid())
+                    return;
+
                 if (resolvedType.isReferenceType()) {
                     dependencies.add(resolvedType.asReferenceType().getQualifiedName());
                 } else {

@@ -8,11 +8,14 @@ import org.graphstream.ui.swing_viewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 
 import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DependencyGraph {
     private Graph graph;
     private Viewer viewer;
     private ViewPanel viewPanel;
+    private Map<String, String> packageColors = new HashMap<>();
 
     public DependencyGraph() {
         graph = new SingleGraph("Dependencies");
@@ -66,11 +69,32 @@ public class DependencyGraph {
         var node = graph.addNode(fullName);
         node.setAttribute("ui.label", simpleName);
         node.setAttribute("ui.class", isStandard ? "standard" : "custom");
+
+        final String packageName = getPackageName(fullName);
+        final String nodeColor = getColorForPackage(packageName);
+        node.setAttribute("ui.custom.fill-color", nodeColor);
+    }
+
+    private String getPackageName(String fullName) {
+        int lastDot = fullName.lastIndexOf('.');
+        return (lastDot >= 0) ? fullName.substring(0, lastDot) : "";
     }
 
     private String simpleName(String full) {
         int lastDot = full.lastIndexOf('.');
         return (lastDot >= 0) ? full.substring(lastDot + 1) : full;
+    }
+
+    private String getColorForPackage(String packageName) {
+        if (!packageColors.containsKey(packageName)) {
+            packageColors.put(packageName, generateColorForPackage(packageName));
+        }
+        return packageColors.get(packageName);
+    }
+
+    private String generateColorForPackage(String packageName) {
+        int hashCode = packageName.hashCode();
+        return String.format("#%06X", (0xFFFFFF & hashCode));
     }
 
     public void reset() {
@@ -79,34 +103,29 @@ public class DependencyGraph {
     }
 
     private String styleSheet() {
-        return """
-                node.standard {
-                    fill-color: #f9f9f9;
-                    stroke-color: black;
-                }
-                
-                node.custom {
-                    fill-color: #d0e8ff;
-                    stroke-color: black;
-                }
-                
-                node {
-                    shape: box;               // oppure "rounded-box"
-                    size-mode: fit;
-                    padding: 18px, 12px;      // margini per evitare sovrapposizioni
-                    text-size: 16;
-                    text-color: black;
-                    text-style: bold;
-                    text-alignment: center;
-                    stroke-mode: plain;
-                    stroke-color: black;
-                }
-                
-                edge {
-                    arrow-shape: arrow;       // oppure "none"
-                    arrow-size: 6px, 4px;     // frecce più piccole
-                    fill-color: #666;
-                }
-                """;
+        return "node.standard {" +
+                "   fill-color: #f9f9f9;" +
+                "   stroke-color: black;" +
+                "}" +
+                "node.custom {" +
+                "   fill-color: #d0e8ff;" +
+                "   stroke-color: black;" +
+                "}" +
+                " node {" +
+                "   shape: box;" +
+                "   size-mode: fit;" +
+                "   padding: 18px, 12px;" +
+                "   text-size: 16;" +
+                "   text-color: black;" +
+                "   text-style: bold;" +
+                "   text-alignment: center;" +
+                "   stroke-mode: plain;" +
+                "   stroke-color: black;" +
+                "}" +
+                "edge {" +
+                "   arrow-shape: arrow;" +
+                "   arrow-size: 6px, 4px;" +
+                "   fill-color: #666;" +
+                "}";
     }
 }
