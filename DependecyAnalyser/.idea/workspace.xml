@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f820731e-0602-4b0a-b0b9-37647c86cc31" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gui/DependencyGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gui/DependencyGraph.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gui/DependencyScanner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gui/DependencyScanner.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/lib/DependencyAnalyserLib.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/DependencyAnalyserLib.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +57,7 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager" selected="Application.DependencyAnalyzer">
+  <component name="RunManager" selected="Application.PrintDependenciesAnalysis">
     <configuration name="DependencyAnalyzer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="gui.DependencyAnalyzer" />
       <module name="DependecyAnalyser" />
@@ -117,8 +116,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.DependencyAnalyzer" />
         <item itemvalue="Application.PrintDependenciesAnalysis" />
+        <item itemvalue="Application.DependencyAnalyzer" />
         <item itemvalue="JUnit.TestDependencyAnalyserLib.testPackageDependencyAnalyser" />
         <item itemvalue="JUnit.TestDependencyAnalyserLib.testClassDependencyAnalyser (1)" />
         <item itemvalue="JUnit.TestDependencyAnalyserLib.testClassDependencyAnalyser" />
@@ -158,6 +157,9 @@
       <workItem from="1746646414356" duration="653000" />
       <workItem from="1746694117734" duration="256000" />
       <workItem from="1746701568275" duration="3521000" />
+      <workItem from="1746815364872" duration="214000" />
+      <workItem from="1746815715343" duration="291000" />
+      <workItem from="1746816557108" duration="400000" />
     </task>
     <servers />
   </component>

@@ -136,9 +136,11 @@ public class DependencyAnalyserLib {
 
         this.vertx.executeBlocking(() -> {
             final Map<String, Set<String>> packageWithDependencies = new HashMap<>();
-            final Set<String> types = new HashSet<>();
+            Set<String> types = new HashSet<>();
 
             new ClassOrInterfaceVisitor().visit(compilationUnit, types);
+
+            types = types.stream().filter(this::isDependencyToInclude).collect(Collectors.toSet());
 
             final String className = Objects.requireNonNull(compilationUnit.findAll(ClassOrInterfaceDeclaration.class)
                     .stream().findFirst().orElse(null)).getNameAsString();
@@ -153,6 +155,26 @@ public class DependencyAnalyserLib {
         .onFailure(visitPromise::fail);
 
         return visitPromise.future();
+    }
+
+    private boolean isDependencyToInclude(String qualifiedName) {
+        final List<String> excludedPackages = Arrays.asList(
+                "java.lang", "java.util", "java.io", "java.math",
+                "java.time", "java.text", "java.nio", "java.net",
+                "javafx", "org.graphstream"
+        );
+
+        final Set<String> excludedTypes = new HashSet<>(Arrays.asList(
+                "String", "Object", "Throwable", "Exception", "RuntimeException", "Error"
+        ));
+
+        for (String prefix : excludedPackages) {
+            if (qualifiedName.startsWith(prefix)) {
+                return false;
+            }
+        }
+
+        return !excludedTypes.contains(qualifiedName);
     }
 
     private Future<Set<Path>> getFilesPaths(Path packagePath) {
