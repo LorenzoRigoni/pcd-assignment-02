@@ -42,7 +42,7 @@ public class DependencyGraph {
     public JComponent getGraphComponent() {
         if (viewPanel == null) {
             viewPanel = (ViewPanel) viewer.addDefaultView(false);
-            viewPanel.setPreferredSize(new java.awt.Dimension(1000, 1000)); // dimensione virtuale grande
+            viewPanel.setPreferredSize(new java.awt.Dimension(2000, 2000)); // dimensione virtuale grande
 
             graph.setAttribute("ui.stylesheet", styleSheet());
 

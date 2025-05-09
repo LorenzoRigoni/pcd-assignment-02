@@ -88,86 +88,99 @@ public class DependencyScanner {
     private Observable<CompilationUnit> parseFileReactive(File file) {
         return Observable.fromCallable(() -> StaticJavaParser.parse(file))
                 .onErrorResumeNext(throwable -> {
-                    System.err.println("Errore nel parsing del file: " + throwable.getMessage());
+                    System.err.println("Errore nel parsing del file " + file.getAbsolutePath() + ": " + throwable.getMessage());
                     return Observable.empty();
                 });
 
     }
+
+    private String resolveTypeName(ClassOrInterfaceType type, String fallbackName) {
+        try {
+            return type.resolve().asReferenceType().getQualifiedName();
+        } catch (Exception ignored) {
+            return type.getScope()
+                    .map(scope -> scope.asString() + "." + fallbackName)
+                    .orElse(fallbackName);
+        }
+    }
+
 
     private DependencyResult extractResolvedDependencies(ClassOrInterfaceDeclaration classDec) {
         String classFQN;
         try {
             classFQN = classDec.resolve().getQualifiedName();
         } catch (Exception e) {
-            classFQN = classDec.getNameAsString(); // fallback se non risolto
+            classFQN = classDec.getNameAsString(); // fallback
         }
+
+        final String classFQNFinal = classFQN;
 
         Set<String> dependencies = new HashSet<>();
 
-        // Analizza tutti i tipi usati nella classe
+        // Colleziona i nomi dei type parameters della classe (es: <T, U>)
+        Set<String> typeParams = classDec.getTypeParameters()
+                .stream()
+                .map(tp -> tp.getNameAsString())
+                .collect(Collectors.toSet());
+
+
+        // 1. Dipendenze da tipi usati all'interno del corpo della classe
         classDec.findAll(ClassOrInterfaceType.class).forEach(type -> {
-            try {
-                ResolvedType resolvedType = JavaParserFacade.get(typeSolver).convertToUsage(type);
-                if(resolvedType.isPrimitive() || resolvedType.isVoid())
-                    return;
+            String typeName = type.getNameAsString();
 
-                if (resolvedType.isReferenceType()) {
-                    String qualifiedName = resolvedType.asReferenceType().getQualifiedName();
+            // Escludi i type parameters come T, U, ecc.
+            if (typeParams.contains(typeName)) return;
 
-                    if (toInclude(qualifiedName)) {
-                        dependencies.add(qualifiedName);
-                    }
-                } else {
-                    String name = resolvedType.describe();
-                    if (toInclude(name)) {
-                        dependencies.add(name);
-                    }
-                }
+            String qualifiedName = resolveTypeName(type, typeName);
+            if (toInclude(qualifiedName) && !qualifiedName.equals(classFQNFinal)) {
+                dependencies.add(qualifiedName);
+            }
+        });
 
-            } catch (Exception ignored) {
-                // In caso non riuscisse a risolvere un tipo
+
+        // 2. Dipendenze da extends (superclassi)
+        classDec.getExtendedTypes().forEach(extendedType -> {
+            String qualifiedName = resolveTypeName(extendedType, extendedType.getNameAsString());
+            if (toInclude(qualifiedName) && !qualifiedName.equals(classFQNFinal)) {
+                dependencies.add(qualifiedName);
+            }
+        });
+
+        // 3. Dipendenze da implements (interfacce)
+        classDec.getImplementedTypes().forEach(implementedType -> {
+            String qualifiedName = resolveTypeName(implementedType, implementedType.getNameAsString());
+            if (toInclude(qualifiedName) && !qualifiedName.equals(classFQNFinal)) {
+                dependencies.add(qualifiedName);
             }
         });
 
         return new DependencyResult(classFQN, new ArrayList<>(dependencies));
     }
 
-    public static class DependencyResult {
-        public final String className;
-        public final List<String> dependencies;
 
-        public DependencyResult(String className, List<String> dependencies) {
-            this.className = className;
-            this.dependencies = dependencies;
-        }
-    }
-
+    /*
+    * Method to exclude types and packages from the dependencies analysis
+    * */
     private boolean toInclude(String qualifiedName) {
-        // Pacchetti da escludere
         List<String> excludedPackages = Arrays.asList(
                 "java.lang", "java.util", "java.io", "java.math",
                 "java.time", "java.text", "java.nio", "java.net",
                 "javafx", "org.graphstream"
         );
 
-        // Tipi da escludere
         Set<String> excludedTypes = new HashSet<>(Arrays.asList(
                 "String", "Object", "Throwable", "Exception", "RuntimeException", "Error"
         ));
 
-        // Escludi se il nome inizia con uno dei pacchetti
         for (String prefix : excludedPackages) {
             if (qualifiedName.startsWith(prefix)) {
                 return false;
             }
         }
 
-        // Escludi se il nome è un tipo specifico (senza pacchetto)
         if (excludedTypes.contains(qualifiedName)) {
             return false;
         }
-
         return true;
     }
-
 }

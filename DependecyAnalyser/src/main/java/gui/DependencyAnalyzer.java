@@ -75,7 +75,12 @@ public class DependencyAnalyzer extends JFrame {
         classesAnalyzedLabel.setText("Classes/Interfaces analyzed: 0");
         dependenciesFoundLabel.setText("Dependencies found: 0");
 
-        this.dependencyScanner = new DependencyScanner(folderPath);
+        File projectRoot = new File(folderPath).getAbsoluteFile();
+        while (projectRoot.getParentFile() != null && !new File(projectRoot, "src").exists()) {
+            projectRoot = projectRoot.getParentFile();
+        }
+
+        this.dependencyScanner = new DependencyScanner(projectRoot.getAbsolutePath());
 
         dependencyScanner.analyze(folderPath)
                 .subscribe(result -> SwingUtilities.invokeLater(() -> updateGUIWithResult(result)),
@@ -83,7 +88,7 @@ public class DependencyAnalyzer extends JFrame {
                                 JOptionPane.showMessageDialog(this, "Error analyzing dependencies: " + error.getMessage())));
     }
 
-    private void updateGUIWithResult(DependencyScanner.DependencyResult result) {
+    private void updateGUIWithResult(DependencyResult result) {
         classesCounter++;
         dependenciesCounter += result.dependencies.size();
         classesAnalyzedLabel.setText("Classes/Interfaces analyzed: " + classesCounter);
