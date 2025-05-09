@@ -4,6 +4,7 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.resolution.Resolvable;
 import com.github.javaparser.resolution.TypeSolver;
@@ -104,17 +105,25 @@ public class DependencyScanner {
         Set<String> dependencies = new HashSet<>();
 
         // Analizza tutti i tipi usati nella classe
-        classDec.findAll(Type.class).forEach(type -> {
+        classDec.findAll(ClassOrInterfaceType.class).forEach(type -> {
             try {
                 ResolvedType resolvedType = JavaParserFacade.get(typeSolver).convertToUsage(type);
                 if(resolvedType.isPrimitive() || resolvedType.isVoid())
                     return;
 
                 if (resolvedType.isReferenceType()) {
-                    dependencies.add(resolvedType.asReferenceType().getQualifiedName());
+                    String qualifiedName = resolvedType.asReferenceType().getQualifiedName();
+
+                    if (toInclude(qualifiedName)) {
+                        dependencies.add(qualifiedName);
+                    }
                 } else {
-                    dependencies.add(resolvedType.describe());
+                    String name = resolvedType.describe();
+                    if (toInclude(name)) {
+                        dependencies.add(name);
+                    }
                 }
+
             } catch (Exception ignored) {
                 // In caso non riuscisse a risolvere un tipo
             }
@@ -132,4 +141,33 @@ public class DependencyScanner {
             this.dependencies = dependencies;
         }
     }
+
+    private boolean toInclude(String qualifiedName) {
+        // Pacchetti da escludere
+        List<String> excludedPackages = Arrays.asList(
+                "java.lang", "java.util", "java.io", "java.math",
+                "java.time", "java.text", "java.nio", "java.net",
+                "javafx", "org.graphstream"
+        );
+
+        // Tipi da escludere
+        Set<String> excludedTypes = new HashSet<>(Arrays.asList(
+                "String", "Object", "Throwable", "Exception", "RuntimeException", "Error"
+        ));
+
+        // Escludi se il nome inizia con uno dei pacchetti
+        for (String prefix : excludedPackages) {
+            if (qualifiedName.startsWith(prefix)) {
+                return false;
+            }
+        }
+
+        // Escludi se il nome è un tipo specifico (senza pacchetto)
+        if (excludedTypes.contains(qualifiedName)) {
+            return false;
+        }
+
+        return true;
+    }
+
 }
