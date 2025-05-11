@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="f820731e-0602-4b0a-b0b9-37647c86cc31" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/lib/DependencyAnalyserLib.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/lib/DependencyAnalyserLib.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -160,6 +159,7 @@
       <workItem from="1746815364872" duration="214000" />
       <workItem from="1746815715343" duration="291000" />
       <workItem from="1746816557108" duration="400000" />
+      <workItem from="1746878489320" duration="2443000" />
     </task>
     <servers />
   </component>
