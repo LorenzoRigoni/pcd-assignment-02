@@ -16,14 +16,12 @@ public class DependencyGraph {
     private Graph graph;
     private Viewer viewer;
     private ViewPanel viewPanel;
-    private Map<String, String> packageColors = new HashMap<>();
 
     public DependencyGraph() {
         graph = new SingleGraph("Dependencies");
         graph.setStrict(false);
         graph.setAutoCreate(true);
 
-        // Primo set del CSS (può non bastare in alcune situazioni Swing)
         graph.setAttribute("ui.stylesheet", styleSheet());
         graph.setAttribute("ui.quality");
         graph.setAttribute("ui.antialias");
@@ -32,27 +30,22 @@ public class DependencyGraph {
         layout.setQuality(1);
         layout.setForce(1.0);
 
-
-
         viewer = new SwingViewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-
         viewer.enableAutoLayout(layout);
     }
 
     public JComponent getGraphComponent() {
         if (viewPanel == null) {
             viewPanel = (ViewPanel) viewer.addDefaultView(false);
-            viewPanel.setPreferredSize(new java.awt.Dimension(2000, 2000)); // dimensione virtuale grande
+            viewPanel.setPreferredSize(new java.awt.Dimension(2000, 2000));
 
             graph.setAttribute("ui.stylesheet", styleSheet());
-
             viewPanel.revalidate();
             viewPanel.repaint();
         }
 
         JScrollPane scrollPane = new JScrollPane(viewPanel);
-        scrollPane.setPreferredSize(new java.awt.Dimension(800, 600)); // dimensione visibile
-
+        scrollPane.setPreferredSize(new java.awt.Dimension(800, 600));
         return scrollPane;
     }
 
@@ -69,25 +62,10 @@ public class DependencyGraph {
 
     private void addNodeIfAbsent(String fullName) {
         if (graph.getNode(fullName) != null) return;
-
         String simpleName = simpleName(fullName);
-        boolean isStandard = fullName.startsWith("java.") || fullName.startsWith("javax.");
 
         var node = graph.addNode(fullName);
         node.setAttribute("ui.label", simpleName);
-        node.setAttribute("ui.class", isStandard ? "standard" : "custom");
-
-        // Ottieni il nome del pacchetto
-        final String packageName = getPackageName(fullName);
-        // Ottieni o genera un colore per il pacchetto
-        final String nodeColor = getColorForPackage(packageName);
-        node.setAttribute("ui.fill-color", nodeColor);
-    }
-
-
-    private String getPackageName(String fullName) {
-        int lastDot = fullName.lastIndexOf('.');
-        return (lastDot >= 0) ? fullName.substring(0, lastDot) : "";
     }
 
     private String simpleName(String full) {
@@ -95,33 +73,13 @@ public class DependencyGraph {
         return (lastDot >= 0) ? full.substring(lastDot + 1) : full;
     }
 
-    private String getColorForPackage(String packageName) {
-        if (!packageColors.containsKey(packageName)) {
-            packageColors.put(packageName, generateColorForPackage(packageName));
-        }
-        return packageColors.get(packageName);
-    }
-
-    private String generateColorForPackage(String packageName) {
-        int hashCode = packageName.hashCode();
-        return String.format("#%06X", (0xFFFFFF & hashCode));
-    }
-
     public void reset() {
         graph.clear();
-        graph.setAttribute("ui.stylesheet", styleSheet()); // Reimposta CSS anche dopo clear()
+        graph.setAttribute("ui.stylesheet", styleSheet());
     }
 
     private String styleSheet() {
-        return "node.standard {" +
-                "   fill-color: #f9f9f9;" +
-                "   stroke-color: black;" +
-                "}" +
-                "node.custom {" +
-                "   fill-color: #d0e8ff;" +
-                "   stroke-color: black;" +
-                "}" +
-                " node {" +
+        return " node {" +
                 "   shape: box;" +
                 "   size-mode: fit;" +
                 "   padding: 18px, 12px;" +
@@ -131,6 +89,7 @@ public class DependencyGraph {
                 "   text-alignment: center;" +
                 "   stroke-mode: plain;" +
                 "   stroke-color: black;" +
+                "   fill-color: #d0e8ff;" +
                 "}" +
                 "edge {" +
                 "   arrow-shape: arrow;" +

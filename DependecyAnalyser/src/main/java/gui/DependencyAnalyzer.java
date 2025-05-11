@@ -95,7 +95,7 @@ public class DependencyAnalyzer extends JFrame {
         dependenciesFoundLabel.setText("Dependencies found: " + dependenciesCounter);
 
         for (String dep : result.dependencies) {
-            System.out.println("Found: " + result.className + " -> " + dep); // Debugging
+            System.out.println("Found: " + result.className + " -> " + dep);
             dependencyGraph.addDependency(result.className, dep);
         }
     }

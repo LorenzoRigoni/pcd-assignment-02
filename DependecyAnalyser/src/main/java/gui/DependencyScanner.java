@@ -88,10 +88,9 @@ public class DependencyScanner {
     private Observable<CompilationUnit> parseFileReactive(File file) {
         return Observable.fromCallable(() -> StaticJavaParser.parse(file))
                 .onErrorResumeNext(throwable -> {
-                    System.err.println("Errore nel parsing del file " + file.getAbsolutePath() + ": " + throwable.getMessage());
+                    System.err.println("Error parsing the file " + file.getAbsolutePath() + ": " + throwable.getMessage());
                     return Observable.empty();
                 });
-
     }
 
     private String resolveTypeName(ClassOrInterfaceType type, String fallbackName) {
@@ -110,25 +109,24 @@ public class DependencyScanner {
         try {
             classFQN = classDec.resolve().getQualifiedName();
         } catch (Exception e) {
-            classFQN = classDec.getNameAsString(); // fallback
+            classFQN = classDec.getNameAsString();
         }
 
         final String classFQNFinal = classFQN;
 
         Set<String> dependencies = new HashSet<>();
 
-        // Colleziona i nomi dei type parameters della classe (es: <T, U>)
         Set<String> typeParams = classDec.getTypeParameters()
                 .stream()
                 .map(tp -> tp.getNameAsString())
                 .collect(Collectors.toSet());
 
 
-        // 1. Dipendenze da tipi usati all'interno del corpo della classe
+        //Dipendencies from the class body
         classDec.findAll(ClassOrInterfaceType.class).forEach(type -> {
             String typeName = type.getNameAsString();
 
-            // Escludi i type parameters come T, U, ecc.
+            // Excluding type parameters (T,U...)
             if (typeParams.contains(typeName)) return;
 
             String qualifiedName = resolveTypeName(type, typeName);
@@ -138,7 +136,7 @@ public class DependencyScanner {
         });
 
 
-        // 2. Dipendenze da extends (superclassi)
+        //Dependencies from extend (superclass)
         classDec.getExtendedTypes().forEach(extendedType -> {
             String qualifiedName = resolveTypeName(extendedType, extendedType.getNameAsString());
             if (toInclude(qualifiedName) && !qualifiedName.equals(classFQNFinal)) {
@@ -146,7 +144,7 @@ public class DependencyScanner {
             }
         });
 
-        // 3. Dipendenze da implements (interfacce)
+        //Dependencies from implements (interface)
         classDec.getImplementedTypes().forEach(implementedType -> {
             String qualifiedName = resolveTypeName(implementedType, implementedType.getNameAsString());
             if (toInclude(qualifiedName) && !qualifiedName.equals(classFQNFinal)) {
@@ -158,9 +156,8 @@ public class DependencyScanner {
     }
 
 
-    /*
-    * Method to exclude types and packages from the dependencies analysis
-    * */
+
+    //Method to exclude types and packages from the dependencies analysis
     private boolean toInclude(String qualifiedName) {
         List<String> excludedPackages = Arrays.asList(
                 "java.lang", "java.util", "java.io", "java.math",
